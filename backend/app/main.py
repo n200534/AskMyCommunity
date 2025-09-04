@@ -5,7 +5,7 @@ import uvicorn
 
 from .core.config import settings
 from .core.database import create_tables
-from .api.v1.endpoints import places, users, recommendations
+from .api.v1.endpoints import places, users, recommendations, maps
 
 # Create FastAPI app
 app = FastAPI(
@@ -42,6 +42,12 @@ app.include_router(
     recommendations.router,
     prefix="/api/v1/recommendations",
     tags=["recommendations"]
+)
+
+app.include_router(
+    maps.router,
+    prefix="/api/v1/maps",
+    tags=["maps"]
 )
 
 # Health check endpoint

@@ -1,121 +1,98 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MagnifyingGlassIcon, MapPinIcon, StarIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, MapPinIcon, StarIcon, HeartIcon, MapIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon, HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
+import GoogleMap from '@/components/GoogleMap';
+import PlaceCard from '@/components/PlaceCard';
+import DirectionsModal from '@/components/DirectionsModal';
+import { searchPlaces, Place, SearchRequest } from '@/lib/maps';
 
 export default function DiscoverPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [places, setPlaces] = useState([
-    {
-      id: '1',
-      name: 'Blue Tokai Coffee',
-      type: 'Cafe',
-      rating: 4.8,
-      price: '₹₹',
-      distance: '0.5 km',
-      description: 'Cozy rooftop cafe with amazing city views and great coffee. Perfect for work or casual meetings.',
-      isLiked: false,
-      likes: 127,
-    },
-    {
-      id: '2',
-      name: 'Cubbon Park',
-      type: 'Park',
-      rating: 4.7,
-      price: 'Free',
-      distance: '1.2 km',
-      description: 'Perfect for morning walks and weekend picnics. Beautiful green space in the heart of the city.',
-      isLiked: true,
-      likes: 156,
-    },
-    {
-      id: '3',
-      name: 'Bangalore Palace',
-      type: 'Tourist Attraction',
-      rating: 4.6,
-      price: '₹₹₹',
-      distance: '2.1 km',
-      description: 'Historic palace with beautiful architecture and gardens. A must-visit for history enthusiasts.',
-      isLiked: false,
-      likes: 89,
-    },
-    {
-      id: '4',
-      name: 'Toit Brewery',
-      type: 'Restaurant',
-      rating: 4.5,
-      price: '₹₹₹',
-      distance: '1.8 km',
-      description: 'Famous brewery with great food and craft beer. Perfect for evening hangouts with friends.',
-      isLiked: false,
-      likes: 203,
-    },
-    {
-      id: '5',
-      name: 'Lalbagh Botanical Garden',
-      type: 'Garden',
-      rating: 4.4,
-      price: '₹₹',
-      distance: '3.2 km',
-      description: 'Beautiful botanical garden with diverse plant species. Great for nature lovers and photography.',
-      isLiked: true,
-      likes: 98,
-    },
-    {
-      id: '6',
-      name: 'Commercial Street',
-      type: 'Shopping',
-      rating: 4.2,
-      price: '₹₹',
-      distance: '2.5 km',
-      description: 'Famous shopping street with traditional and modern stores. Perfect for street shopping.',
-      isLiked: false,
-      likes: 145,
-    },
-  ]);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [showMap, setShowMap] = useState(true);
+  const [showDirections, setShowDirections] = useState(false);
+  const [directionsPlace, setDirectionsPlace] = useState<Place | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [filters, setFilters] = useState({
+    placeType: '',
+    minRating: 0,
+    maxPrice: '',
+    radius: 5
+  });
 
-  // Get search query from URL
+  // Get search query from URL and user location
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q');
     if (query) {
       setSearchQuery(query);
     }
+
+    // Get user location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          // Default to Bangalore
+          setUserLocation({ lat: 12.9716, lng: 77.5946 });
+        }
+      );
+    } else {
+      // Default to Bangalore
+      setUserLocation({ lat: 12.9716, lng: 77.5946 });
+    }
   }, []);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (searchQuery.trim()) {
       setIsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
+      try {
+        const searchRequest: SearchRequest = {
+          query: searchQuery,
+          place_type: filters.placeType || undefined,
+          min_rating: filters.minRating || undefined,
+          max_price: filters.maxPrice || undefined,
+          latitude: userLocation?.lat,
+          longitude: userLocation?.lng,
+          radius: filters.radius,
+          page: 1,
+          page_size: 20,
+          sort_by: 'relevance'
+        };
+
+        const response = await searchPlaces(searchRequest);
+        setPlaces(response.places);
+      } catch (error) {
+        console.error('Error searching places:', error);
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     }
   };
 
-  const handleLike = (id: string) => {
-    setPlaces(prev => 
-      prev.map(place => 
-        place.id === id 
-          ? { 
-              ...place, 
-              isLiked: !place.isLiked, 
-              likes: place.isLiked ? place.likes - 1 : place.likes + 1 
-            }
-          : place
-      )
-    );
+  const handlePlaceSelect = (place: Place) => {
+    setSelectedPlace(place);
   };
 
-  const filteredPlaces = searchQuery 
-    ? places.filter(place => 
-        place.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        place.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        place.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : places;
+  const handleGetDirections = (place: Place) => {
+    setDirectionsPlace(place);
+    setShowDirections(true);
+  };
+
+  const handleLike = (place: Place) => {
+    // Handle like functionality
+    console.log('Liked place:', place.name);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -125,15 +102,16 @@ export default function DiscoverPage() {
           <p className="text-gray-600">Find amazing places, events, and activities in your city</p>
         </div>
 
-        {/* Simple Search */}
+        {/* Search and Filters */}
         <div className="mb-8">
-          <div className="flex gap-2 max-w-2xl">
+          <div className="flex gap-2 max-w-2xl mb-4">
             <div className="relative flex-1">
               <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="Search places, events, activities..."
                 className="w-full pl-12 pr-4 py-3 text-lg text-gray-900 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -146,19 +124,60 @@ export default function DiscoverPage() {
               {isLoading ? 'Searching...' : 'Search'}
             </button>
           </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4">
+            <select
+              value={filters.placeType}
+              onChange={(e) => setFilters({...filters, placeType: e.target.value})}
+              className="px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Types</option>
+              <option value="restaurant">Restaurant</option>
+              <option value="cafe">Cafe</option>
+              <option value="park">Park</option>
+              <option value="shopping">Shopping</option>
+              <option value="entertainment">Entertainment</option>
+            </select>
+
+            <select
+              value={filters.minRating}
+              onChange={(e) => setFilters({...filters, minRating: parseFloat(e.target.value)})}
+              className="px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value={0}>All Ratings</option>
+              <option value={3}>3+ Stars</option>
+              <option value={4}>4+ Stars</option>
+              <option value={4.5}>4.5+ Stars</option>
+            </select>
+
+            <select
+              value={filters.maxPrice}
+              onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+              className="px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Prices</option>
+              <option value="$">Budget ($)</option>
+              <option value="$$">Moderate ($$)</option>
+              <option value="$$$">Expensive ($$$)</option>
+            </select>
+
+            <button
+              onClick={() => setShowMap(!showMap)}
+              className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <MapIcon className="h-5 w-5 mr-2" />
+              {showMap ? 'Hide Map' : 'Show Map'}
+            </button>
+          </div>
         </div>
 
         {/* Results */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
-              {isLoading ? 'Searching...' : `${filteredPlaces.length} Places Found`}
+              {isLoading ? 'Searching...' : `${places.length} Places Found`}
             </h2>
-            <select className="px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option>Sort by Rating</option>
-              <option>Sort by Distance</option>
-              <option>Sort by Price</option>
-            </select>
           </div>
 
           {isLoading ? (
@@ -175,58 +194,43 @@ export default function DiscoverPage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPlaces.map((place) => (
-                <div key={place.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                  <div className="h-48 bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
-                    <MapPinIcon className="h-16 w-16 text-white opacity-50" />
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">{place.name}</h3>
-                      <div className="flex items-center space-x-1">
-                        <StarSolidIcon className="h-5 w-5 text-yellow-400" />
-                        <span className="text-sm font-medium text-gray-600">{place.rating}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{place.type}</span>
-                      <span>{place.price}</span>
-                      <span className="flex items-center">
-                        <MapPinIcon className="h-4 w-4 mr-1" />
-                        {place.distance}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mb-4">{place.description}</p>
-                    <div className="flex items-center justify-between">
-                      <button
-                        onClick={() => handleLike(place.id)}
-                        className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-colors duration-200 ${
-                          place.isLiked
-                            ? 'bg-red-100 text-red-600'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        {place.isLiked ? (
-                          <HeartSolidIcon className="h-4 w-4" />
-                        ) : (
-                          <HeartIcon className="h-4 w-4" />
-                        )}
-                        <span className="text-sm font-medium">{place.likes}</span>
-                      </button>
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                        View Details
-                      </button>
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Places List */}
+              <div className="lg:col-span-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {places.map((place) => (
+                    <PlaceCard
+                      key={place.google_place_id}
+                      place={place}
+                      onSelect={handlePlaceSelect}
+                      onLike={handleLike}
+                      onGetDirections={handleGetDirections}
+                      isSelected={selectedPlace?.google_place_id === place.google_place_id}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Map */}
+              {showMap && (
+                <div className="lg:col-span-1">
+                  <div className="sticky top-4">
+                    <GoogleMap
+                      places={places}
+                      selectedPlace={selectedPlace}
+                      onPlaceSelect={handlePlaceSelect}
+                      center={userLocation || { lat: 12.9716, lng: 77.5946 }}
+                      className="h-96 w-full rounded-lg"
+                    />
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>
 
         {/* Load More */}
-        {!isLoading && filteredPlaces.length > 0 && (
+        {!isLoading && places.length > 0 && (
           <div className="text-center mt-8">
             <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
               Load More Places
@@ -234,6 +238,24 @@ export default function DiscoverPage() {
           </div>
         )}
       </div>
+
+      {/* Directions Modal */}
+      {showDirections && directionsPlace && userLocation && (
+        <DirectionsModal
+          isOpen={showDirections}
+          onClose={() => setShowDirections(false)}
+          origin={{
+            lat: userLocation.lat,
+            lng: userLocation.lng,
+            address: 'Your Location'
+          }}
+          destination={{
+            lat: directionsPlace.latitude,
+            lng: directionsPlace.longitude,
+            address: directionsPlace.address
+          }}
+        />
+      )}
     </div>
   );
 }

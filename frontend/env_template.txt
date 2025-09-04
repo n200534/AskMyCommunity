@@ -1,0 +1,12 @@
+# Frontend Environment Configuration
+# Copy this content to .env.local file in the frontend directory
+
+# Google Maps API Key
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-api-key-here
+
+# Backend API URL
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# App Configuration
+NEXT_PUBLIC_APP_NAME=AskMyCommunity
+NEXT_PUBLIC_APP_VERSION=1.0.0

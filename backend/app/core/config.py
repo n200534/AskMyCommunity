@@ -18,6 +18,14 @@ class Settings(BaseSettings):
     reddit_client_id: str = ""
     reddit_client_secret: str = ""
     
+    # AI Services
+    openai_api_key: str = ""
+    google_ai_api_key: str = ""
+    ai_service: str = "google_ai"  # openai, google_ai, or custom
+    
+    # Google Maps
+    google_maps_api_key: str = ""
+    
     # App Settings
     debug: bool = True
     cors_origins: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]

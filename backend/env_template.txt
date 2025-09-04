@@ -1,0 +1,28 @@
+# Backend Environment Configuration
+# Copy this content to .env file in the backend directory
+
+# Database Configuration (Neon PostgreSQL)
+DATABASE_URL=postgresql://username:password@ep-xxxxx.us-east-1.aws.neon.tech/askmycommunity?sslmode=require
+# Get your connection string from: https://console.neon.tech/
+
+# Security
+SECRET_KEY=your-secret-key-change-in-production-12345
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Google Maps API
+GOOGLE_MAPS_API_KEY=your-google-maps-api-key-here
+
+# Google AI (Gemini Flash)
+GOOGLE_AI_API_KEY=your-google-ai-api-key-here
+
+# AI Service Configuration
+AI_SERVICE=google_ai
+
+# App Settings
+DEBUG=True
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+
+# Pagination
+DEFAULT_PAGE_SIZE=20
+MAX_PAGE_SIZE=100
