@@ -77,7 +77,7 @@ export default function GoogleMap({
           map,
           title: place.name,
           icon: {
-            url: selectedPlace?.google_place_id === place.google_place_id 
+            url: selectedPlace?.id === place.id 
               ? 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                 <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="16" cy="16" r="12" fill="#3B82F6" stroke="#1E40AF" stroke-width="2"/>
@@ -112,7 +112,7 @@ export default function GoogleMap({
               <div class="flex items-center mt-1">
                 <span class="text-yellow-500">★</span>
                 <span class="text-sm ml-1">${place.rating.toFixed(1)}</span>
-                <span class="text-sm text-gray-500 ml-2">${place.price_range}</span>
+                <span class="text-sm text-gray-500 ml-2">${'$'.repeat(place.price_level)}</span>
               </div>
             </div>
           `,

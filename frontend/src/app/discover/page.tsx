@@ -199,12 +199,12 @@ export default function DiscoverPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {places.map((place) => (
                     <PlaceCard
-                      key={place.google_place_id}
+                      key={place.id}
                       place={place}
                       onSelect={handlePlaceSelect}
                       onLike={handleLike}
                       onGetDirections={handleGetDirections}
-                      isSelected={selectedPlace?.google_place_id === place.google_place_id}
+                      isSelected={selectedPlace?.id === place.id}
                     />
                   ))}
                 </div>

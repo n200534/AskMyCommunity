@@ -133,7 +133,7 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
 }
 
 // Adjust duration based on distance and mode
-function adjustDuration(originalDuration: string, scaleFactor: number, mode: string): string {
+function adjustDuration(originalDuration: string, scaleFactor: number, _mode: string): string {
   const minutes = parseInt(originalDuration.replace(/\D/g, ''));
   const adjustedMinutes = Math.round(minutes * scaleFactor);
   

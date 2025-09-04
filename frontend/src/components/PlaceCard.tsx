@@ -1,15 +1,32 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { MapPinIcon, HeartIcon, PhoneIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon, HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { Place, formatDistance, formatRating, getPriceRangeDisplay, getPlaceTypeDisplay } from '@/lib/maps';
 
+interface AIRecommendation {
+  confidence: number;
+  reasoning: string;
+  personalized_notes: string;
+  best_for: string[];
+  avoid_if: string[];
+  best_time_to_visit: string;
+  local_tips: string[];
+}
+
+interface EnhancedPlace extends Place {
+  ai_recommendation?: AIRecommendation;
+  ai_confidence?: number;
+  ai_rank?: number;
+}
+
 interface PlaceCardProps {
-  place: Place;
-  onSelect?: (place: Place) => void;
-  onLike?: (place: Place) => void;
-  onGetDirections?: (place: Place) => void;
+  place: EnhancedPlace;
+  onSelect?: (place: EnhancedPlace) => void;
+  onLike?: (place: EnhancedPlace) => void;
+  onGetDirections?: (place: EnhancedPlace) => void;
   isSelected?: boolean;
 }
 
@@ -51,11 +68,12 @@ export default function PlaceCard({
     >
       {/* Image */}
       <div className="h-48 bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center relative">
-        {place.images && place.images.length > 0 && !imageError ? (
-          <img
-            src={place.images[0]}
+        {place.photo_url && !imageError ? (
+          <Image
+            src={place.photo_url}
             alt={place.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
             onError={() => setImageError(true)}
           />
         ) : (
@@ -103,12 +121,6 @@ export default function PlaceCard({
           </div>
         </div>
 
-        {/* AI Reason */}
-        {place.ai_reason && (
-          <div className="mb-3 p-2 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800">{place.ai_reason}</p>
-          </div>
-        )}
 
         {/* Description */}
         {place.description && (
@@ -117,10 +129,45 @@ export default function PlaceCard({
           </p>
         )}
 
+        {/* AI Recommendation */}
+        {place.ai_recommendation && (
+          <div className="mb-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                AI Recommendation
+              </span>
+              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                {place.ai_confidence}% match
+              </span>
+            </div>
+            <p className="text-sm text-gray-700 mb-2">{place.ai_recommendation.reasoning}</p>
+            
+            {place.ai_recommendation.best_for && place.ai_recommendation.best_for.length > 0 && (
+              <div className="mb-2">
+                <span className="text-xs font-medium text-green-700">Best for:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {place.ai_recommendation.best_for.slice(0, 3).map((item, index) => (
+                    <span key={index} className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {place.ai_recommendation.local_tips && place.ai_recommendation.local_tips.length > 0 && (
+              <div>
+                <span className="text-xs font-medium text-purple-700">Local tip:</span>
+                <p className="text-xs text-gray-600 mt-1">{place.ai_recommendation.local_tips[0]}</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Details */}
         <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
           <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-            {getPriceRangeDisplay(place.price_range)}
+            {getPriceRangeDisplay(place.price_level.toString())}
           </span>
           {place.distance && (
             <span className="flex items-center">
@@ -128,7 +175,7 @@ export default function PlaceCard({
               {formatDistance(place.distance)}
             </span>
           )}
-          <span>{place.review_count} reviews</span>
+          <span>Reviews available</span>
         </div>
 
         {/* Address */}

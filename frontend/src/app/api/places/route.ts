@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { aiService, EnhancedPlace } from '@/lib/ai-service';
 
 // Types
 interface Place {
@@ -20,13 +21,27 @@ interface Place {
   source: string;
 }
 
+interface BlogSource {
+  name: string;
+  searchUrl: string;
+  baseUrl: string;
+  selectors: {
+    container: string;
+    title: string;
+    description: string;
+    link: string;
+    image: string;
+  };
+}
+
 interface SearchResponse {
-  places: Place[];
+  places: EnhancedPlace[];
   total: number;
   page: number;
   page_size: number;
   total_pages: number;
   query: string;
+  ai_suggestions?: string[];
 }
 
 // Web scraping sources
@@ -80,7 +95,7 @@ const CITY_COORDINATES = {
 };
 
 // Scrape a single blog source
-async function scrapeBlogSource(source: any, query: string): Promise<Place[]> {
+async function scrapeBlogSource(source: BlogSource, query: string): Promise<Place[]> {
   try {
     const searchUrl = `${source.searchUrl}${encodeURIComponent(query)}`;
     console.log(`Scraping ${source.name}: ${searchUrl}`);
@@ -170,20 +185,28 @@ async function searchPlaces(query: string, page: number = 1, pageSize: number = 
     index === self.findIndex(p => p.name.toLowerCase() === place.name.toLowerCase())
   );
 
+  // Enhance places with AI recommendations
+  console.log('Enhancing places with AI...');
+  const enhancedPlaces = await aiService.enhancePlaces(uniquePlaces, query);
+  
+  // Generate AI search suggestions
+  const aiSuggestions = await aiService.generateSearchSuggestions(query);
+
   // Apply pagination
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const paginatedPlaces = uniquePlaces.slice(startIndex, endIndex);
+  const paginatedPlaces = enhancedPlaces.slice(startIndex, endIndex);
   
-  const totalPages = Math.ceil(uniquePlaces.length / pageSize);
+  const totalPages = Math.ceil(enhancedPlaces.length / pageSize);
 
   return {
     places: paginatedPlaces,
-    total: uniquePlaces.length,
+    total: enhancedPlaces.length,
     page,
     page_size: pageSize,
     total_pages: totalPages,
-    query
+    query,
+    ai_suggestions: aiSuggestions
   };
 }
 
