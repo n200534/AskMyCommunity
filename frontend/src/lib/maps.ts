@@ -60,7 +60,7 @@ export interface SearchResponse {
   page_size: number;
   total_pages: number;
   query: string;
-  filters_applied: Record<string, any>;
+  filters_applied: Record<string, unknown>;
 }
 
 // API functions

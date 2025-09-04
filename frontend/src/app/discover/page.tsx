@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MagnifyingGlassIcon, MapPinIcon, StarIcon, HeartIcon, MapIcon } from '@heroicons/react/24/outline';
-import { StarIcon as StarSolidIcon, HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
+import { MagnifyingGlassIcon, MapIcon } from '@heroicons/react/24/outline';
 import GoogleMap from '@/components/GoogleMap';
 import PlaceCard from '@/components/PlaceCard';
 import DirectionsModal from '@/components/DirectionsModal';

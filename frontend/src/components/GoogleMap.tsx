@@ -37,8 +37,6 @@ export default function GoogleMap({
         });
 
         const { Map } = await loader.importLibrary('maps');
-        const { Marker } = await loader.importLibrary('marker');
-        const { InfoWindow } = await loader.importLibrary('marker');
 
         if (mapRef.current) {
           const map = new Map(mapRef.current, {
@@ -138,7 +136,7 @@ export default function GoogleMap({
       });
       map.fitBounds(bounds);
     }
-  }, [places, selectedPlace, onPlaceSelect, isLoaded]);
+  }, [places, selectedPlace, onPlaceSelect, isLoaded, center, zoom]);
 
   if (error) {
     return (

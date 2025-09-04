@@ -18,8 +18,8 @@ export default function AboutPage() {
               recommendations that match your interests and preferences.
             </p>
             <p className="text-gray-600">
-              Whether you're looking for a cozy cafe to work from, a romantic restaurant for a date, 
-              or fun activities for the weekend, we've got you covered.
+              Whether you&apos;re looking for a cozy cafe to work from, a romantic restaurant for a date, 
+              or fun activities for the weekend, we&apos;ve got you covered.
             </p>
           </div>
 
@@ -31,7 +31,7 @@ export default function AboutPage() {
                   <span className="text-2xl">🔍</span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Search</h3>
-                <p className="text-gray-600">Ask anything in natural language - "Chill rooftop cafe near me"</p>
+                <p className="text-gray-600">Ask anything in natural language - &quot;Chill rooftop cafe near me&quot;</p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">

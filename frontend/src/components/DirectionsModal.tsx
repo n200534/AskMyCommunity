@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { XMarkIcon, MapPinIcon, ClockIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { getDirections, Directions } from '@/lib/maps';
 
@@ -23,13 +23,7 @@ export default function DirectionsModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen && origin && destination) {
-      loadDirections();
-    }
-  }, [isOpen, origin, destination, mode]);
-
-  const loadDirections = async () => {
+  const loadDirections = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -48,7 +42,13 @@ export default function DirectionsModal({
     } finally {
       setLoading(false);
     }
-  };
+  }, [origin.lat, origin.lng, destination.lat, destination.lng, mode]);
+
+  useEffect(() => {
+    if (isOpen && origin && destination) {
+      loadDirections();
+    }
+  }, [isOpen, origin, destination, mode, loadDirections]);
 
   if (!isOpen) return null;
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MagnifyingGlassIcon, MapPinIcon, StarIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 
 export default function Home() {
@@ -82,7 +82,7 @@ export default function Home() {
             </button>
           </div>
           <p className="text-sm text-gray-500 mt-2">
-            Try: "Romantic dinner spots", "Weekend activities", "Free events"
+            Try: &quot;Romantic dinner spots&quot;, &quot;Weekend activities&quot;, &quot;Free events&quot;
           </p>
         </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPinIcon, StarIcon, HeartIcon, PhoneIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, HeartIcon, PhoneIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon, HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { Place, formatDistance, formatRating, getPriceRangeDisplay, getPlaceTypeDisplay } from '@/lib/maps';
 
@@ -11,7 +11,6 @@ interface PlaceCardProps {
   onLike?: (place: Place) => void;
   onGetDirections?: (place: Place) => void;
   isSelected?: boolean;
-  showMap?: boolean;
 }
 
 export default function PlaceCard({
@@ -19,8 +18,7 @@ export default function PlaceCard({
   onSelect,
   onLike,
   onGetDirections,
-  isSelected = false,
-  showMap = false
+  isSelected = false
 }: PlaceCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [imageError, setImageError] = useState(false);
