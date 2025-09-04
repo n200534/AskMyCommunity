@@ -3,28 +3,21 @@
 export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
 export interface Place {
-  google_place_id: string;
+  id: string;
   name: string;
-  description: string;
-  place_type: string;
   address: string;
   latitude: number;
   longitude: number;
   rating: number;
-  price_range: string;
-  phone: string;
-  website: string;
-  opening_hours: string;
-  amenities: string[];
-  images: string[];
-  is_verified: boolean;
-  is_active: boolean;
-  review_count: number;
-  like_count: number;
+  price_level: number;
+  place_type: string;
+  photo_url?: string;
+  phone?: string;
+  website?: string;
+  opening_hours?: string[];
+  description?: string;
+  source: string;
   distance?: number;
-  ai_confidence?: number;
-  ai_reason?: string;
-  ai_rank?: number;
 }
 
 export interface Directions {
@@ -65,7 +58,7 @@ export interface SearchResponse {
 
 // API functions
 export async function searchPlaces(searchRequest: SearchRequest): Promise<SearchResponse> {
-  const response = await fetch('/api/v1/maps/search', {
+  const response = await fetch('/api/places', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -130,7 +123,7 @@ export async function getDirections(
     mode,
   });
 
-  const response = await fetch(`/api/v1/maps/directions?${params}`);
+  const response = await fetch(`/api/directions?${params}`);
 
   if (!response.ok) {
     throw new Error('Failed to get directions');
